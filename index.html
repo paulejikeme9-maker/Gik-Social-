@@ -1,1 +1,51 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#5b45e8"><title>Gik — Your World. Your Gik.</title><link rel="stylesheet" href="styles.css"></head><body><header><a class="brand" href="#">gik<span>.</span></a><input id="search" placeholder="Search people, posts, groups…"><button data-page="messenger">✉ Messages</button><button data-page="profile">My profile</button></header><div class="layout"><aside><div class="logo">g</div><b>Paul's Gik</b><small>@paul_on_gik</small><nav><button data-page="home">⌂ Home</button><button data-page="friends">♙ Friends & Search</button><button data-page="videos">▷ Videos</button><button data-page="communities">◈ Communities</button><button data-page="groups">♧ Groups</button><button data-page="live">◉ Live Studio</button><button data-page="messenger">✉ Messenger</button><button data-page="profile">◎ Profile</button><button data-page="saved">▱ Saved posts</button></nav><a href="admin.html">Open Gik Control Center ↗</a></aside><main id="main"></main><aside class="right"><section><b>People you may know</b><p>Amara Okafor <button data-action="friend">Add</button></p><p>Tobi Daniel <button data-action="friend">Add</button></p><p>Mariam Bello <button data-action="friend">Add</button></p></section><section><b>Trending on Gik</b><p>#GikLaunch <small>2.4k posts</small></p><p>#MadeOnGik <small>1.8k posts</small></p><p>#CampusLife <small>920 posts</small></p></section></aside></div><nav class="mobile"><button data-page="home">⌂<small>Home</small></button><button data-page="friends">♙<small>Friends</small></button><button data-page="videos">▷<small>Videos</small></button><button data-page="messenger">✉<small>Chat</small></button><button data-page="profile">◎<small>Profile</small></button></nav><div id="toast"></div><script src="app.js"></script></body></html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0866ff">
+  <title>Gik - Connect with the world</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="logo" href="index.html">Gik</a>
+    <input id="search" type="search" placeholder="Search Gik">
+    <nav>
+      <button data-page="home">Home</button>
+      <button data-page="friends">Friends</button>
+      <button data-page="videos">Videos</button>
+      <button data-page="groups">Groups</button>
+      <button data-page="messages">Messages</button>
+    </nav>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <h3>Your shortcuts</h3>
+      <button data-page="profile">My Profile</button>
+      <button data-page="saved">Saved posts</button>
+      <button data-page="community">Communities</button>
+      <a href="admin.html">Gik Control Center</a>
+    </aside>
+
+    <section class="feed">
+      <h1 id="page-title">Welcome to Gik</h1>
+      <form id="post-form" class="card">
+        <textarea id="post-text" placeholder="What's happening around the world?" required></textarea>
+        <button type="submit">Publish post</button>
+      </form>
+      <div id="posts"></div>
+    </section>
+
+    <aside class="sidebar">
+      <h3>Discover Gik</h3>
+      <p>Connect with friends and communities around the world.</p>
+      <p class="notice">Gik is under development. Please don't share sensitive information in this demo.</p>
+    </aside>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
