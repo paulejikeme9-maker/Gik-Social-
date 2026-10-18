@@ -1,0 +1,61 @@
+
+const posts = document.getElementById('posts');
+const form = document.getElementById('post-form');
+const input = document.getElementById('post-text');
+const title = document.getElementById('page-title');
+
+const savedPosts = [];
+
+function addPost(message) {
+  const card = document.createElement('article');
+  card.className = 'card';
+
+  const text = document.createElement('p');
+  text.textContent = message;
+
+  const like = document.createElement('button');
+  like.textContent = 'Like';
+
+  const count = document.createElement('span');
+  count.textContent = ' 0 likes';
+
+  like.addEventListener('click', () => {
+    const liked = like.dataset.liked === 'yes';
+    like.dataset.liked = liked ? 'no' : 'yes';
+    like.textContent = liked ? 'Like' : 'Liked';
+    count.textContent = liked ? ' 0 likes' : ' 1 like';
+  });
+
+  const save = document.createElement('button');
+  save.textContent = 'Save';
+  save.addEventListener('click', () => {
+    savedPosts.push(message);
+    save.textContent = 'Saved';
+  });
+
+  card.append(text, like, count, save);
+  posts.prepend(card);
+}
+
+form.addEventListener('submit', event => {
+  event.preventDefault();
+  const message = input.value.trim();
+  if (!message) return;
+  addPost(message);
+  input.value = '';
+});
+
+document.querySelectorAll('[data-page]').forEach(button => {
+  button.addEventListener('click', () => {
+    const page = button.dataset.page;
+    title.textContent =
+      page.charAt(0).toUpperCase() + page.slice(1);
+    if (page === 'saved') {
+      posts.replaceChildren();
+      savedPosts.forEach(addPost);
+    }
+  });
+});
+
+addPost('Welcome to Gik! Your global social community starts here.');
+                        
