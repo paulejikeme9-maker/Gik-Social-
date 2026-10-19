@@ -5,6 +5,25 @@ const input = document.getElementById('post-text');
 const title = document.getElementById('page-title');
 
 const savedPosts = [];
+const friends = [
+  { name: 'Discover People', detail: 'Find people to connect with on Gik.' }
+];
+const groups = [
+  { name: 'Welcome to Gik Community', detail: 'A place for everyone to connect.' }
+];
+
+function showMessage(message) {
+  posts.replaceChildren();
+
+  const card = document.createElement('article');
+  card.className = 'card';
+
+  const text = document.createElement('p');
+  text.textContent = message;
+
+  card.append(text);
+  posts.append(card);
+}
 
 function addPost(message) {
   const card = document.createElement('article');
@@ -28,8 +47,11 @@ function addPost(message) {
 
   const save = document.createElement('button');
   save.textContent = 'Save';
+
   save.addEventListener('click', () => {
-    savedPosts.push(message);
+    if (!savedPosts.includes(message)) {
+      savedPosts.push(message);
+    }
     save.textContent = 'Saved';
   });
 
@@ -37,25 +59,99 @@ function addPost(message) {
   posts.prepend(card);
 }
 
-form.addEventListener('submit', event => {
-  event.preventDefault();
-  const message = input.value.trim();
-  if (!message) return;
-  addPost(message);
-  input.value = '';
-});
+function showHome() {
+  posts.replaceChildren();
+  addPost('Welcome to Gik! Your global social community starts here.');
+}
+
+function showVideos() {
+  showMessage(
+    'Gik Videos: This section is ready for us to build. Video uploads and playback are not connected yet.'
+  );
+}
+
+function showFriends() {
+  posts.replaceChildren();
+
+  friends.forEach(friend => {
+    const card = document.createElement('article');
+    card.className = 'card';
+
+    const name = document.createElement('h3');
+    name.textContent = friend.name;
+
+    const detail = document.createElement('p');
+    detail.textContent = friend.detail;
+
+    card.append(name, detail);
+    posts.append(card);
+  });
+}
+
+function showGroups() {
+  posts.replaceChildren();
+
+  groups.forEach(group => {
+    const card = document.createElement('article');
+    card.className = 'card';
+
+    const name = document.createElement('h3');
+    name.textContent = group.name;
+
+    const detail = document.createElement('p');
+    detail.textContent = group.detail;
+
+    card.append(name, detail);
+    posts.append(card);
+  });
+}
+
+function showSaved() {
+  posts.replaceChildren();
+
+  if (savedPosts.length === 0) {
+    showMessage('You have not saved any posts yet.');
+    return;
+  }
+
+  savedPosts.forEach(addPost);
+}
+
+const pageActions = {
+  home: showHome,
+  video: showVideos,
+  videos: showVideos,
+  friends: showFriends,
+  groups: showGroups,
+  saved: showSaved
+};
 
 document.querySelectorAll('[data-page]').forEach(button => {
   button.addEventListener('click', () => {
-    const page = button.dataset.page;
+    const page = button.dataset.page.toLowerCase();
     title.textContent =
       page.charAt(0).toUpperCase() + page.slice(1);
-    if (page === 'saved') {
-      posts.replaceChildren();
-      savedPosts.forEach(addPost);
+
+    if (pageActions[page]) {
+      pageActions[page]();
+    } else {
+      showMessage(
+        `${title.textContent}: This section has not been built yet.`
+      );
     }
   });
 });
 
-addPost('Welcome to Gik! Your global social community starts here.');
+form.addEventListener('submit', event => {
+  event.preventDefault();
+
+  const message = input.value.trim();
+  if (!message) return;
+
+  addPost(message);
+  input.value = '';
+});
+
+showHome();
+
                         
