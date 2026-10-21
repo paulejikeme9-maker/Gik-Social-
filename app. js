@@ -1,157 +1,368 @@
 
-const posts = document.getElementById('posts');
+      
+'use strict';
+
+// GIK SOCIAL — DEMO APP
+// Works with the current index.html and styles.css.
+
+const postsElement = document.getElementById('posts');
 const form = document.getElementById('post-form');
 const input = document.getElementById('post-text');
 const title = document.getElementById('page-title');
+const search = document.getElementById('search');
 
-const savedPosts = [];
-const friends = [
-  { name: 'Discover People', detail: 'Find people to connect with on Gik.' }
-];
-const groups = [
-  { name: 'Welcome to Gik Community', detail: 'A place for everyone to connect.' }
-];
+if (!postsElement || !form || !input || !title) {
+  console.error('Gik Social: Required HTML elements are missing.');
+} else {
+  const savedPosts = new Set();
+  const likedPosts = new Set();
+  let nextId = 2;
+  let currentPage = 'home';
+  let searchTerm = '';
 
-function showMessage(message) {
-  posts.replaceChildren();
+  const currentUser = {
+    name: 'Gik Member',
+    username: '@gikmember',
+    bio: 'Welcome to my world on Gik Social!'
+  };
 
-  const card = document.createElement('article');
-  card.className = 'card';
-
-  const text = document.createElement('p');
-  text.textContent = message;
-
-  card.append(text);
-  posts.append(card);
-}
-
-function addPost(message) {
-  const card = document.createElement('article');
-  card.className = 'card';
-
-  const text = document.createElement('p');
-  text.textContent = message;
-
-  const like = document.createElement('button');
-  like.textContent = 'Like';
-
-  const count = document.createElement('span');
-  count.textContent = ' 0 likes';
-
-  like.addEventListener('click', () => {
-    const liked = like.dataset.liked === 'yes';
-    like.dataset.liked = liked ? 'no' : 'yes';
-    like.textContent = liked ? 'Like' : 'Liked';
-    count.textContent = liked ? ' 0 likes' : ' 1 like';
-  });
-
-  const save = document.createElement('button');
-  save.textContent = 'Save';
-
-  save.addEventListener('click', () => {
-    if (!savedPosts.includes(message)) {
-      savedPosts.push(message);
+  const posts = [
+    {
+      id: 1,
+      author: 'Gik Social',
+      username: '@gik',
+      message: 'Welcome to Gik! Your global social community starts here.',
+      createdAt: new Date(),
+      likes: 0
     }
-    save.textContent = 'Saved';
-  });
+  ];
 
-  card.append(text, like, count, save);
-  posts.prepend(card);
-}
+  const pageNames = {
+    home: 'Home',
+    friends: 'Friends',
+    videos: 'Videos',
+    groups: 'Groups',
+    messages: 'Messages',
+    profile: 'My Profile',
+    saved: 'Saved Posts',
+    community: 'Communities'
+  };
 
-function showHome() {
-  posts.replaceChildren();
-  addPost('Welcome to Gik! Your global social community starts here.');
-}
-
-function showVideos() {
-  showMessage(
-    'Gik Videos: This section is ready for us to build. Video uploads and playback are not connected yet.'
-  );
-}
-
-function showFriends() {
-  posts.replaceChildren();
-
-  friends.forEach(friend => {
-    const card = document.createElement('article');
-    card.className = 'card';
-
-    const name = document.createElement('h3');
-    name.textContent = friend.name;
-
-    const detail = document.createElement('p');
-    detail.textContent = friend.detail;
-
-    card.append(name, detail);
-    posts.append(card);
-  });
-}
-
-function showGroups() {
-  posts.replaceChildren();
-
-  groups.forEach(group => {
-    const card = document.createElement('article');
-    card.className = 'card';
-
-    const name = document.createElement('h3');
-    name.textContent = group.name;
-
-    const detail = document.createElement('p');
-    detail.textContent = group.detail;
-
-    card.append(name, detail);
-    posts.append(card);
-  });
-}
-
-function showSaved() {
-  posts.replaceChildren();
-
-  if (savedPosts.length === 0) {
-    showMessage('You have not saved any posts yet.');
-    return;
+  function createElement(tag, className, text) {
+    const element = document.createElement(tag);
+    if (className) element.className = className;
+    if (text !== undefined) element.textContent = text;
+    return element;
   }
 
-  savedPosts.forEach(addPost);
-}
+  function makeCard() {
+    return createElement('article', 'card');
+  }
 
-const pageActions = {
-  home: showHome,
-  video: showVideos,
-  videos: showVideos,
-  friends: showFriends,
-  groups: showGroups,
-  saved: showSaved
-};
+  function showNotice(message) {
+    postsElement.replaceChildren();
+    postsElement.append(createElement('p', '', message));
+  }
 
-document.querySelectorAll('[data-page]').forEach(button => {
-  button.addEventListener('click', () => {
-    const page = button.dataset.page.toLowerCase();
-    title.textContent =
-      page.charAt(0).toUpperCase() + page.slice(1);
+  function showHome() {
+    renderFeed(posts);
+  }
 
-    if (pageActions[page]) {
-      pageActions[page]();
-    } else {
-      showMessage(
-        `${title.textContent}: This section has not been built yet.`
+  function renderFeed(list) {
+    postsElement.replaceChildren();
+
+    const filtered = list.filter(post =>
+      (post.message + ' ' + post.author + ' ' + post.username)
+        .toLowerCase()
+        .includes(searchTerm)
+    );
+
+    if (!filtered.length) {
+      showNotice(
+        searchTerm
+          ? 'No matching posts found. Try another search.'
+          : 'No posts here yet. Be the first to share something!'
       );
+      return;
     }
+
+    filtered.slice().reverse().forEach(post => {
+      const card = makeCard();
+      const author = createElement(
+        'strong',
+        '',
+        `${post.author} ${post.username}`
+      );
+      const message = createElement('p', '', post.message);
+      const time = createElement(
+        'small',
+        '',
+        post.createdAt.toLocaleString()
+      );
+      const actions = createElement('div', 'post-actions');
+
+      const likeButton = createElement(
+        'button',
+        '',
+        likedPosts.has(post.id) ? 'Liked' : 'Like'
+      );
+      likeButton.type = 'button';
+
+      const likeCount = createElement(
+        'span',
+        '',
+        ` ${post.likes} likes `
+      );
+
+      likeButton.addEventListener('click', () => {
+        if (likedPosts.has(post.id)) {
+          likedPosts.delete(post.id);
+          post.likes = Math.max(0, post.likes - 1);
+        } else {
+          likedPosts.add(post.id);
+          post.likes += 1;
+        }
+        renderCurrentPage();
+      });
+
+      const saveButton = createElement(
+        'button',
+        '',
+        savedPosts.has(post.id) ? 'Saved' : 'Save'
+      );
+      saveButton.type = 'button';
+
+      saveButton.addEventListener('click', () => {
+        if (savedPosts.has(post.id)) {
+          savedPosts.delete(post.id);
+        } else {
+          savedPosts.add(post.id);
+        }
+        renderCurrentPage();
+      });
+
+      actions.append(likeButton, likeCount, saveButton);
+      card.append(author, time, message, actions);
+      postsElement.append(card);
+    });
+  }
+
+  function showFriends() {
+    const card = makeCard();
+    card.append(
+      createElement('h2', '', 'Find Friends'),
+      createElement(
+        'p',
+        '',
+        'Discover people and connect with them on Gik.'
+      ),
+      createElement(
+        'p',
+        '',
+        'Real user discovery and friend requests will be connected when accounts are built.'
+      )
+    );
+    postsElement.replaceChildren(card);
+  }
+
+  function showVideos() {
+    const card = makeCard();
+    card.append(
+      createElement('h2', '', 'Gik Videos'),
+      createElement(
+        'p',
+        '',
+        'Discover short videos and creative content from around the world.'
+      ),
+      createElement(
+        'p',
+        '',
+        'Video uploads and playback are coming in a later development stage.'
+      )
+    );
+    postsElement.replaceChildren(card);
+  }
+
+  function showGroups() {
+    const card = makeCard();
+    card.append(
+      createElement('h2', '', 'Groups'),
+      createElement(
+        'p',
+        '',
+        'Find people who share your interests.'
+      ),
+      createElement(
+        'h3',
+        '',
+        'Welcome to Gik Community'
+      ),
+      createElement(
+        'p',
+        '',
+        'A place for everyone to connect, share ideas, and learn.'
+      ),
+      createElement(
+        'p',
+        '',
+        'Creating and joining real groups will be added later.'
+      )
+    );
+    postsElement.replaceChildren(card);
+  }
+
+  function showMessages() {
+    const card = makeCard();
+    card.append(
+      createElement('h2', '', 'Messages'),
+      createElement(
+        'p',
+        '',
+        'Your conversations will appear here.'
+      ),
+      createElement(
+        'p',
+        '',
+        'Private messaging requires user accounts and a connected backend. It is not active in this demo yet.'
+      )
+    );
+    postsElement.replaceChildren(card);
+  }
+
+  function showProfile() {
+    const card = makeCard();
+    card.append(
+      createElement('h2', '', currentUser.name),
+      createElement('p', '', currentUser.username),
+      createElement('p', '', currentUser.bio),
+      createElement(
+        'p',
+        '',
+        `Posts shared in this session: ${posts.filter(p => p.author === currentUser.name).length}`
+      ),
+      createElement(
+        'p',
+        '',
+        'Profile editing and account registration will be added later.'
+      )
+    );
+    postsElement.replaceChildren(card);
+  }
+
+  function showSaved() {
+    const list = posts.filter(post => savedPosts.has(post.id));
+    renderFeed(list);
+  }
+
+  function showCommunities() {
+    const card = makeCard();
+    card.append(
+      createElement('h2', '', 'Communities'),
+      createElement(
+        'p',
+        '',
+        'Communities bring people together around shared interests.'
+      ),
+      createElement(
+        'h3',
+        '',
+        'Gik Global Community'
+      ),
+      createElement(
+        'p',
+        '',
+        'Meet people, exchange ideas, and discover what is happening around the world.'
+      ),
+      createElement(
+        'p',
+        '',
+        'Community membership and management are not connected yet.'
+      )
+    );
+    postsElement.replaceChildren(card);
+  }
+
+  const pageActions = {
+    home: showHome,
+    friends: showFriends,
+    video: showVideos,
+    videos: showVideos,
+    groups: showGroups,
+    messages: showMessages,
+    profile: showProfile,
+    saved: showSaved,
+    community: showCommunities,
+    communities: showCommunities
+  };
+
+  function renderCurrentPage() {
+    if (pageActions[currentPage]) {
+      pageActions[currentPage]();
+    } else {
+      showNotice('This section is not available yet.');
+    }
+  }
+
+  function navigate(page) {
+    currentPage = page.toLowerCase().trim();
+
+    title.textContent = pageNames[currentPage] || 'Gik Social';
+
+    document.querySelectorAll('[data-page]').forEach(button => {
+      const active = button.dataset.page.toLowerCase() === currentPage;
+      button.setAttribute('aria-current', active ? 'page' : 'false');
+    });
+
+    if (search) {
+      search.value = searchTerm;
+      search.hidden = currentPage !== 'home' &&
+                      currentPage !== 'saved';
+    }
+
+    renderCurrentPage();
+  }
+
+  document.querySelectorAll('[data-page]').forEach(button => {
+    button.addEventListener('click', event => {
+      event.preventDefault();
+      navigate(button.dataset.page);
+    });
   });
-});
 
-form.addEventListener('submit', event => {
-  event.preventDefault();
+  form.addEventListener('submit', event => {
+    event.preventDefault();
 
-  const message = input.value.trim();
-  if (!message) return;
+    const message = input.value.trim();
+    if (!message) {
+      input.focus();
+      return;
+    }
 
-  addPost(message);
-  input.value = '';
-});
+    posts.push({
+      id: nextId++,
+      author: currentUser.name,
+      username: currentUser.username,
+      message,
+      createdAt: new Date(),
+      likes: 0
+    });
 
-showHome();
+    input.value = '';
+    searchTerm = '';
+    navigate('home');
+  });
 
-                        
+  if (search) {
+    search.addEventListener('input', () => {
+      searchTerm = search.value.trim().toLowerCase();
+
+      if (currentPage === 'home' || currentPage === 'saved') {
+        renderCurrentPage();
+      }
+    });
+  }
+
+  // Start on the Home page.
+  navigate('home');
+}
+                  
